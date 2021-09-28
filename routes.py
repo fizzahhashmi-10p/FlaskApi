@@ -22,6 +22,7 @@ class Todo(Resource):
         args = request.args
         if args:
             task = Tasks.query.filter_by(id=args['id']).first()
+            #print(task)
             if task is None:
                 return abort(404,not_found="error occured, couldnt get data :(")
             return task
