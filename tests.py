@@ -34,7 +34,7 @@ class TestClass:
             }),
             content_type='application/json',
             )
-        assert response.status_code == 200
+        assert response.status_code == 201
 
     def test_cannot_create_duplicate_task(self):
         client = app.test_client(self)        
@@ -59,8 +59,8 @@ class TestClass:
             }),
             content_type='application/json',
             )
-        assert response.status_code == 200
-        assert 'successful' in str(response.data)
+        assert response.status_code == 205
+        assert 'Updated using put' in str(response.data)
 
     def test_can_update_task_using_patch(self):
         client = app.test_client(self)        
@@ -71,7 +71,7 @@ class TestClass:
             content_type='application/json',
             )
         assert response.status_code == 200
-        assert 'successful' in str(response.data)
+        assert 'Updated using patch' in str(response.data)
 
     def test_cannot_update_no_task_using_patch(self):
         client = app.test_client(self)        
@@ -87,8 +87,7 @@ class TestClass:
     def test_can_delete_task(self):
         client = app.test_client(self)        
         response = client.delete('/api/todo/?id={}'.format(index))
-        assert response.status_code == 200
-
+        assert response.status_code == 204\
 
     def test_cannot_delete_no_task(self):
         client = app.test_client(self)        

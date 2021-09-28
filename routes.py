@@ -1,6 +1,6 @@
 from datetime import datetime
-from flask import request
-from flask_restful import Resource, fields, marshal_with
+from flask import request, Response
+from flask_restful import Resource, fields, marshal_with,abort
 from serializers import getArgParser
 from models import db, Tasks
 from werkzeug.exceptions import BadRequest
@@ -16,17 +16,19 @@ task_fields = {
     'updatedOn':fields.DateTime
 }
 
-
 class Todo(Resource):
     @marshal_with(task_fields)
     def get(self):
         args = request.args
         if args:
             task = Tasks.query.filter_by(id=args['id']).first()
+            if task is None:
+                return abort(404,not_found="error occured, couldnt get data :(")
             return task
         else:
             tasks = Tasks.query.all()
             return tasks
+        
 
     def post(self):
         try:
@@ -34,7 +36,7 @@ class Todo(Resource):
             task = Tasks(id = args['id'], title = args['title'], completion_status = args['completion_status'])
             db.session.add(task)
             db.session.commit()
-            return {"id": args['id'], "post request status": "successful", "code":201}
+            return Response('{"data":"posted (^^)"}', status=201, mimetype='text/json')
         except:
             raise BadRequest('Task Already Exists!')
             
@@ -47,7 +49,7 @@ class Todo(Resource):
             args["updatedOn"]= datetime.now()
             task.update(args)
             db.session.commit()
-            return {"id": args['id'], "put request status": "successful", "code": 205}
+            return Response('{"data":"Updated using put (o0)"}', status=205, mimetype='text/json')
         else:
             raise BadRequest('Unable to update task')
 
@@ -58,7 +60,7 @@ class Todo(Resource):
             args["updatedOn"]= datetime.now()
             Tasks.query.filter_by(id=args['id']).update(args)
             db.session.commit()
-            return {"id": args['id'], "patch request status": "successful", "code":200}
+            return Response('{"data":"Updated using patch (0_0)"}', status=200, mimetype='text/json')
         else:
             raise BadRequest('Unable to update task')
     
@@ -69,7 +71,7 @@ class Todo(Resource):
             print(task)
             db.session.delete(task)
             db.session.commit()
-            return {"id": args['id'], "delete request status": "successful", "code":204}
+            return Response('{"data":"Deleted (x_x)"}', status=204, mimetype='text/json')
         else:
             raise BadRequest('Task doesnot exist!')
 
